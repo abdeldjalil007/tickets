@@ -44,7 +44,7 @@ const PRINT_FOOTER_LINES = [
 ];
 
 const SUMMARY_WILAYA_PORTRAIT_LIMIT = 6;
-const SUMMARY_LINES_LIMIT_PORTRAIT = 29;
+const SUMMARY_LINES_LIMIT_PORTRAIT = 27;
 const SUMMARY_LINES_LIMIT_LANDSCAPE = 17;
 
 const SUMMARY_PRINT_FONT_HEADER_RIGHT_PORTRAIT = 15;
@@ -65,7 +65,7 @@ const SUMMARY_PRINT_FONT_TABLE_LANDSCAPE = 13;
 const SUMMARY_PRINT_FONT_CALCULATIONS_PORTRAIT = 13;
 const SUMMARY_PRINT_FONT_CALCULATIONS_LANDSCAPE = 13;
 
-const SUMMARY_PRINT_FONT_FOOTER_PORTRAIT = 9.5;
+const SUMMARY_PRINT_FONT_FOOTER_PORTRAIT = 14;
 const SUMMARY_PRINT_FONT_FOOTER_LANDSCAPE = 12;
 
 const chunkSummaryRows = (rows = [], pageSize = SUMMARY_LINES_LIMIT_PORTRAIT) => {
@@ -243,18 +243,14 @@ function SummaryContent({ username, isAdmin }) {
         />
       ) : null}
 
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen overflow-x-hidden">
         <aside
-          className={`summary-app-sidebar summary-print-hide fixed inset-y-0 left-0 z-30 w-[245px] bg-slate-900 p-5 text-white transition-transform duration-300 ${
+          className={`summary-app-sidebar summary-print-hide fixed inset-y-0 left-0 z-30 w-[245px] bg-slate-900 p-5 text-white transition-transform duration-300 ease-in-out ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           <div className="flex h-full flex-col">
-            <div>
-              <p className="text-xs tracking-[0.25em] text-blue-200">DASHBOARD</p>
-            </div>
-
-            <nav className="mt-4 space-y-1">
+            <nav className="mt-12 space-y-1">
               <button
                 type="button"
                 onClick={() => router.push("/dashboard")}
@@ -302,12 +298,12 @@ function SummaryContent({ username, isAdmin }) {
           </div>
         </aside>
 
-        <section className={`summary-app-shell flex min-h-screen flex-1 flex-col ${isSidebarOpen ? "md:pl-[245px]" : ""}`}>
-          <header className="summary-app-header summary-print-hide flex items-center gap-3 bg-slate-900 px-4 py-3 text-white sm:px-5">
+        <section className={`summary-app-shell flex min-h-screen flex-1 flex-col transition-[padding-left] duration-300 ease-in-out ${isSidebarOpen ? "md:pl-[245px]" : "md:pl-0"}`}>
+          <header className="summary-app-header summary-print-hide flex items-center gap-3 bg-slate-900 pl-16 pr-4 py-3 text-white sm:pl-20 sm:pr-5">
             <button
               type="button"
               onClick={() => setIsSidebarOpen((prev) => !prev)}
-              className="cursor-pointer rounded-lg border border-white/25 px-3 py-1.5 text-lg leading-none transition hover:bg-white/12"
+              className="fixed left-4 top-3 z-50 cursor-pointer rounded-lg border border-white/25 bg-slate-900/95 px-3 py-1.5 text-lg leading-none transition hover:bg-white/12"
               aria-label="Open menu"
             >
               ☰
@@ -380,7 +376,7 @@ function SummaryContent({ username, isAdmin }) {
                 </div>
 
                 <div className="flex items-end">
-                  <button type="submit" className="btn btn-primary w-full" disabled={isLoadingFilters || isSubmitting}>
+                  <button type="submit" className="btn btn-success w-full" disabled={isLoadingFilters || isSubmitting}>
                     {isSubmitting ? "Loading..." : "Generate"}
                   </button>
                 </div>
