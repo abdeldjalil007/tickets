@@ -28,6 +28,152 @@ const printableDateFormatter = new Intl.DateTimeFormat("fr-FR", {
 
 const formatAmount = (value) => amountFormatter.format(Number(value || 0));
 
+const FR_UNITS = [
+  "zero",
+  "un",
+  "deux",
+  "trois",
+  "quatre",
+  "cinq",
+  "six",
+  "sept",
+  "huit",
+  "neuf",
+  "dix",
+  "onze",
+  "douze",
+  "treize",
+  "quatorze",
+  "quinze",
+  "seize",
+];
+
+const numberToFrenchBelow100 = (value) => {
+  const number = Math.trunc(value);
+
+  if (number < 17) {
+    return FR_UNITS[number];
+  }
+
+  if (number < 20) {
+    return `dix-${FR_UNITS[number - 10]}`;
+  }
+
+  if (number < 70) {
+    const tensWord = ["", "", "vingt", "trente", "quarante", "cinquante", "soixante"][Math.floor(number / 10)];
+    const unit = number % 10;
+
+    if (unit === 0) {
+      return tensWord;
+    }
+
+    if (unit === 1) {
+      return `${tensWord} et un`;
+    }
+
+    return `${tensWord}-${FR_UNITS[unit]}`;
+  }
+
+  if (number < 80) {
+    if (number === 71) {
+      return "soixante et onze";
+    }
+
+    return `soixante-${numberToFrenchBelow100(number - 60)}`;
+  }
+
+  if (number === 80) {
+    return "quatre-vingts";
+  }
+
+  return `quatre-vingt-${numberToFrenchBelow100(number - 80)}`;
+};
+
+const numberToFrenchBelow1000 = (value) => {
+  const number = Math.trunc(value);
+  const hundreds = Math.floor(number / 100);
+  const remainder = number % 100;
+
+  if (hundreds === 0) {
+    return numberToFrenchBelow100(remainder);
+  }
+
+  const hundredPrefix = hundreds === 1 ? "cent" : `${FR_UNITS[hundreds]} cent`;
+
+  if (remainder === 0) {
+    return hundreds > 1 ? `${hundredPrefix}s` : hundredPrefix;
+  }
+
+  return `${hundredPrefix} ${numberToFrenchBelow100(remainder)}`;
+};
+
+const numberToFrenchWords = (value) => {
+  const number = Math.trunc(value);
+
+  if (number === 0) {
+    return "zero";
+  }
+
+  const scales = [
+    { value: 1000000000, singular: "milliard", plural: "milliards" },
+    { value: 1000000, singular: "million", plural: "millions" },
+    { value: 1000, singular: "mille", plural: "mille" },
+  ];
+
+  let remainder = number;
+  const parts = [];
+
+  for (const scale of scales) {
+    const quotient = Math.floor(remainder / scale.value);
+    if (quotient === 0) {
+      continue;
+    }
+
+    if (scale.value === 1000) {
+      parts.push(quotient === 1 ? "mille" : `${numberToFrenchWords(quotient)} mille`);
+    } else {
+      parts.push(`${numberToFrenchWords(quotient)} ${quotient === 1 ? scale.singular : scale.plural}`);
+    }
+
+    remainder %= scale.value;
+  }
+
+  if (remainder > 0) {
+    parts.push(numberToFrenchBelow1000(remainder));
+  }
+
+  return parts.join(" ");
+};
+
+const titleCaseWords = (str) => {
+  return str
+    .split(" ")
+    .map((word) => (word.length > 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word))
+    .join(" ");
+};
+
+const formatAmountInWordsFr = (value) => {
+  const numeric = Number(value || 0);
+  if (!Number.isFinite(numeric)) {
+    return "-";
+  }
+
+  const rounded = Math.round(numeric * 100);
+  const dinars = Math.floor(rounded / 100);
+  const centimes = rounded % 100;
+
+  const dinarWords = numberToFrenchWords(dinars);
+  const dinarLabel = dinars > 1 ? "dinars algeriens" : "dinar algerien";
+
+  if (centimes === 0) {
+    return titleCaseWords(`${dinarWords} ${dinarLabel}`);
+  }
+
+  const centimeWords = numberToFrenchWords(centimes);
+  const centimeLabel = centimes > 1 ? "centimes" : "centime";
+  return titleCaseWords(`${dinarWords} ${dinarLabel} et ${centimeWords} ${centimeLabel}`);
+};
+
 const formatInvoiceMonthCode = (monthData) => {
   const monthValue = String(monthData?.value || "").trim();
   if (/^\d{4}-\d{2}$/.test(monthValue)) {
@@ -67,6 +213,14 @@ const PRINT_HEADER_LINES = [
   "ر.ت.الجبائي  :002126034391516",
 ];
 
+const PRINT_FOOTER_LINES = [
+  "ش.ذ.م.م اكاﻣﻜﻮم",
+  "سبورت نيوز  يومية وطنية جزائرية",
+  "رأس المال: 100.000.00 دج // سجل تجاري رقم: 21  ب 0343915 - 16/00 // ر.ت.الجبائي :002126034391516",
+  "العنوان: حي 20 اوت  1955 وادي الرمان محل رقم 87 الطابق الارضي بلدية العاشور    –",
+];
+
+
 const INVOICE_CLIENT_LINES = [
   "CLIENT : ANEP",
   "RC : 16/02-0010224B99",
@@ -83,6 +237,7 @@ const INVOICE_PRINT_FONT_TITLE_PORTRAIT = 18;
 const INVOICE_PRINT_FONT_TABLE_PORTRAIT = 13;
 const INVOICE_PRINT_FONT_TABLE_HEADER_PORTRAIT = 12;
 const INVOICE_PRINT_FONT_NOTE_PORTRAIT = 15;
+const INVOICE_PRINT_FONT_FOOTER_PORTRAIT = 16;
 
 export default function InvoicePage() {
   const router = useRouter();
@@ -533,9 +688,15 @@ function InvoiceContent({ username, isAdmin }) {
                     </table>
 
                     <p className="invoice-print-note">
-                      <strong>Arrête la présente facture à la somme de :</strong> {formatAmount(summary.ttc)} Dinars Algerien.
+                      <strong>Arrête la présente facture à la somme de :</strong> {formatAmountInWordsFr(summary.ttc)}.
                     </p>
                   </article>
+
+                  <footer className="invoice-print-footer">
+                    {PRINT_FOOTER_LINES.map((line) => (
+                      <p key={line}>{line}</p>
+                    ))}
+                  </footer>
                 </section>
               ) : null}
 
@@ -598,6 +759,7 @@ function InvoiceContent({ username, isAdmin }) {
             color: #000;
             font-family: "Times New Roman", serif;
             font-size: ${INVOICE_PRINT_FONT_BASE_PORTRAIT}px;
+            padding-bottom: 34mm;
           }
 
           .invoice-print-header {
@@ -623,6 +785,7 @@ function InvoiceContent({ username, isAdmin }) {
             text-align: right;
             line-height: 1.3;
             font-size: ${INVOICE_PRINT_FONT_HEADER_RIGHT_PORTRAIT}px;
+            font-family: Calibri, "Segoe UI", Arial, sans-serif;
           }
 
           .invoice-print-header-right p,
@@ -651,8 +814,11 @@ function InvoiceContent({ username, isAdmin }) {
           }
 
           .invoice-print-table {
-            width: 100%;
+            width: calc(100% - 1mm);
+            margin-right: 1mm;
+            box-sizing: border-box;
             border-collapse: collapse;
+            border: 1px solid #000;
             font-size: ${INVOICE_PRINT_FONT_TABLE_PORTRAIT}px;
           }
 
@@ -661,6 +827,11 @@ function InvoiceContent({ username, isAdmin }) {
             border: 1px solid #000;
             padding: 1.2mm 1mm;
             line-height: 1.08;
+          }
+
+          .invoice-print-table th:last-child,
+          .invoice-print-table td:last-child {
+            border-right: 1px solid #000 !important;
           }
 
           .invoice-print-table th {
@@ -690,6 +861,26 @@ function InvoiceContent({ username, isAdmin }) {
             margin-top: 14mm;
             font-size: ${INVOICE_PRINT_FONT_NOTE_PORTRAIT}px;
             line-height: 1.35;
+          }
+
+          .invoice-print-footer {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-top: 1px solid #000;
+            padding: 2mm 4mm 0;
+            background: #fff;
+            text-align: center;
+            direction: rtl;
+            font-size: ${INVOICE_PRINT_FONT_FOOTER_PORTRAIT}px;
+            line-height: 1.25;
+            z-index: 2;
+            font-family: Calibri, "Segoe UI", Arial, sans-serif;
+          }
+
+          .invoice-print-footer p {
+            margin: 0;
           }
         }
       `}</style>

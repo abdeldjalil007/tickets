@@ -945,8 +945,11 @@ function ReportsContent({ username, isAdmin }) {
           }
 
           .report-print-table {
-            width: 100%;
+            width: calc(100% - 1mm);
+            margin-right: 1mm;
+            box-sizing: border-box;
             border-collapse: collapse;
+            border: 1px solid #000;
             font-size: ${REPORT_PRINT_FONT_TABLE_PORTRAIT}px; /* ← Table body / header / footer rows */
           }
 
@@ -969,6 +972,11 @@ function ReportsContent({ username, isAdmin }) {
             line-height: 1;
             vertical-align: middle;
             text-align: center; /* ← all cells centered (DATE, N°BC, SURFACE, amounts) */
+          }
+
+          .report-print-table th:last-child,
+          .report-print-table td:last-child {
+            border-right: 1px solid #000 !important;
           }
 
           .report-print-table th {

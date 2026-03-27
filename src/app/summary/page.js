@@ -599,38 +599,41 @@ function SummaryContent({ username, isAdmin }) {
                           </table>
 
                           {isLastPage && printPages.length >= 2 ? (
-                            <table className="summary-print-calculations">
-                              <tbody>
-                                <tr>
-                                  <td>Montant général</td>
-                                  <td>{formatAmount(summary.totalGeneral)}</td>
-                                </tr>
-                                <tr>
-                                  <td>Commission anep 30 %</td>
-                                  <td>{formatAmount(summary.commissionAnep)}</td>
-                                </tr>
-                                <tr>
-                                  <td>Montant HT</td>
-                                  <td>{formatAmount(summary.montantHt)}</td>
-                                </tr>
-                                <tr>
-                                  <td>MONTANT TVA 19 %</td>
-                                  <td>{formatAmount(summary.montantTva)}</td>
-                                </tr>
-                                <tr>
-                                  <td>TTC</td>
-                                  <td>{formatAmount(summary.ttc)}</td>
-                                </tr>
-                              </tbody>
-                            </table>
+                            <div className="summary-print-calculations-wrap">
+                              <table className="summary-print-calculations">
+                                <tbody>
+                                  <tr>
+                                    <td>Montant général</td>
+                                    <td>{formatAmount(summary.totalGeneral)}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Commission anep 30 %</td>
+                                    <td>{formatAmount(summary.commissionAnep)}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Montant HT</td>
+                                    <td>{formatAmount(summary.montantHt)}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>MONTANT TVA 19 %</td>
+                                    <td>{formatAmount(summary.montantTva)}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>TTC</td>
+                                    <td>{formatAmount(summary.ttc)}</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
                           ) : null}
                         </div>
                       </article>
                     );
                   })}
 
+                  {/* ─── FIXED: wrapper with padding-bottom so the fixed footer never overlaps ─── */}
                   {shouldPrintCalculationsHeader ? (
-                    <>
+                    <div className="summary-print-calculations-page">
                       <header className="summary-print-header summary-print-header--calculations">
                         <div className="summary-print-logo-wrap">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -650,34 +653,35 @@ function SummaryContent({ username, isAdmin }) {
                       </header>
                       <br />
                       <br />
-                    </>
-                  ) : null}
-
-                  {summary && printPages.length === 1 ? (
-                    <table className="summary-print-calculations">
-                      <tbody>
-                        <tr>
-                          <td>Montant général</td>
-                          <td>{formatAmount(summary.totalGeneral)}</td>
-                        </tr>
-                        <tr>
-                          <td>Commission anep 30 %</td>
-                          <td>{formatAmount(summary.commissionAnep)}</td>
-                        </tr>
-                        <tr>
-                          <td>Montant HT</td>
-                          <td>{formatAmount(summary.montantHt)}</td>
-                        </tr>
-                        <tr>
-                          <td>MONTANT TVA 19 %</td>
-                          <td>{formatAmount(summary.montantTva)}</td>
-                        </tr>
-                        <tr>
-                          <td>TTC</td>
-                          <td>{formatAmount(summary.ttc)}</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                      {summary && printPages.length === 1 ? (
+                        <div className="summary-print-calculations-wrap">
+                          <table className="summary-print-calculations">
+                            <tbody>
+                              <tr>
+                                <td>Montant général</td>
+                                <td>{formatAmount(summary.totalGeneral)}</td>
+                              </tr>
+                              <tr>
+                                <td>Commission anep 30 %</td>
+                                <td>{formatAmount(summary.commissionAnep)}</td>
+                              </tr>
+                              <tr>
+                                <td>Montant HT</td>
+                                <td>{formatAmount(summary.montantHt)}</td>
+                              </tr>
+                              <tr>
+                                <td>MONTANT TVA 19 %</td>
+                                <td>{formatAmount(summary.montantTva)}</td>
+                              </tr>
+                              <tr>
+                                <td>TTC</td>
+                                <td>{formatAmount(summary.ttc)}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : null}
+                    </div>
                   ) : null}
 
                   <footer className="summary-print-footer">
@@ -750,6 +754,11 @@ function SummaryContent({ username, isAdmin }) {
             padding-bottom: 34mm;
           }
 
+          /* ─── FIXED: calculations page wrapper also gets the same padding-bottom ─── */
+          .summary-print-calculations-page {
+            padding-bottom: 34mm;
+          }
+
           .summary-print-page-break {
             break-after: page;
             page-break-after: always;
@@ -776,8 +785,9 @@ function SummaryContent({ username, isAdmin }) {
             direction: rtl;
             text-align: right;
             line-height: 1.35;
-            font-size: ${SUMMARY_PRINT_FONT_HEADER_RIGHT_PORTRAIT}px; /* Arabic company block (top-right header text) */
+            font-size: ${SUMMARY_PRINT_FONT_HEADER_RIGHT_PORTRAIT}px;
             max-width: 135mm;
+            font-family: Calibri, "Segoe UI", Arial, sans-serif;
           }
 
           .summary-print-title {
@@ -785,14 +795,14 @@ function SummaryContent({ username, isAdmin }) {
             justify-content: center;
             gap: 14mm;
             margin: 0 0 6mm;
-            font-size: ${SUMMARY_PRINT_FONT_TITLE_PORTRAIT}px; /* "Recapitulatif mois de: Month Year" centered title */
+            font-size: ${SUMMARY_PRINT_FONT_TITLE_PORTRAIT}px;
             font-weight: 700;
           }
 
           .summary-print-meta {
             margin-bottom: 4mm;
             line-height: 1.4;
-            font-size: ${SUMMARY_PRINT_FONT_META_PORTRAIT}px; /* Journal info lines (Le nom du journal, Email, Telephone, ANEP) */
+            font-size: ${SUMMARY_PRINT_FONT_META_PORTRAIT}px;
           }
 
           .summary-print-meta p {
@@ -812,7 +822,7 @@ function SummaryContent({ username, isAdmin }) {
             display: block !important;
             text-align: center;
             font-weight: 700;
-            font-size: ${SUMMARY_PRINT_FONT_MONTH_LINE_PORTRAIT}px; /* Month line text size */
+            font-size: ${SUMMARY_PRINT_FONT_MONTH_LINE_PORTRAIT}px;
             margin: 0;
           }
 
@@ -821,25 +831,31 @@ function SummaryContent({ username, isAdmin }) {
             margin-right: 6px;
           }
 
-          .summary-print-table,
-          .summary-print-calculations {
-            width: 100%;
+          .summary-print-table {
+            width: calc(100% - 1mm);
+            margin-right: 1mm;
+            box-sizing: border-box;
             border-collapse: collapse;
+            border: 1px solid #000;
             color: #000;
           }
 
           .summary-print-table {
-            font-size: ${SUMMARY_PRINT_FONT_TABLE_PORTRAIT}px; /* Table body/header/footer rows */
+            font-size: ${SUMMARY_PRINT_FONT_TABLE_PORTRAIT}px;
           }
 
           .summary-print-table th,
-          .summary-print-table td,
-          .summary-print-calculations td {
+          .summary-print-table td {
             border: 1px solid #000;
             padding: 1.2mm 1mm;
             line-height: 1;
-            text-align: center; /* Keep all printed table cells centered */
+            text-align: center;
             vertical-align: middle;
+          }
+
+          .summary-print-table th:last-child,
+          .summary-print-table td:last-child {
+            border-right: 1px solid #000 !important;
           }
 
           .summary-print-table thead {
@@ -855,14 +871,34 @@ function SummaryContent({ username, isAdmin }) {
             padding: 5mm 0 !important;
           }
 
-          .summary-print-header--calculations {
+          .summary-print-calculations-wrap {
+            margin-top: 4mm;
+            width: calc(100% - 1mm);
+            margin-right: 1mm;
+            box-sizing: border-box;
+            page-break-inside: avoid;
           }
 
           .summary-print-calculations {
-            margin-top: 4mm;
-            width: min(430px, 100%);
-            font-size: ${SUMMARY_PRINT_FONT_CALCULATIONS_PORTRAIT}px; /* Calculations table (Montant general, Commission, HT, TVA, TTC) */
-            page-break-inside: avoid;
+            width: 100%;
+            margin: 0;
+            box-sizing: border-box;
+            font-size: ${SUMMARY_PRINT_FONT_CALCULATIONS_PORTRAIT}px;
+            color: #000;
+            border-collapse: collapse;
+            border: 1px solid #000;
+            table-layout: fixed;
+          }
+
+          .summary-print-calculations td {
+            border: 1px solid #000;
+            padding: 1.2mm 1mm;
+            line-height: 1;
+            vertical-align: middle;
+          }
+
+          .summary-print-calculations td:last-child {
+            border-right: 1px solid #000 !important;
           }
 
           .summary-print-calculations td:first-child {
@@ -884,17 +920,23 @@ function SummaryContent({ username, isAdmin }) {
             background: #fff;
             text-align: center;
             direction: rtl;
-            font-size: ${SUMMARY_PRINT_FONT_FOOTER_PORTRAIT}px; /* Footer Arabic/French lines at the bottom of every page */
+            font-size: ${SUMMARY_PRINT_FONT_FOOTER_PORTRAIT}px;
             line-height: 1.2;
             z-index: 2;
+            font-family: Calibri, "Segoe UI", Arial, sans-serif;
           }
 
           .summary-print-footer p {
             margin: 0;
           }
 
-          /* Landscape mode uses tighter spacing and smaller type so more rows fit per page. */
+          /* Landscape overrides */
           .summary-print-sheet--landscape .summary-print-content {
+            padding-bottom: 30mm;
+          }
+
+          /* ─── FIXED: landscape also needs the reduced padding on the calculations page ─── */
+          .summary-print-sheet--landscape .summary-print-calculations-page {
             padding-bottom: 30mm;
           }
 
@@ -904,7 +946,7 @@ function SummaryContent({ username, isAdmin }) {
 
           .summary-print-sheet--landscape .summary-print-meta {
             margin-bottom: 2mm;
-            font-size: ${SUMMARY_PRINT_FONT_META_LANDSCAPE}px; /* Landscape: reduced meta font */
+            font-size: ${SUMMARY_PRINT_FONT_META_LANDSCAPE}px;
             line-height: 1.2;
           }
 
@@ -914,12 +956,12 @@ function SummaryContent({ username, isAdmin }) {
 
           .summary-print-sheet--landscape .summary-print-title {
             margin: 0 0 3mm;
-            font-size: ${SUMMARY_PRINT_FONT_TITLE_LANDSCAPE}px; /* Landscape: reduced title font */
+            font-size: ${SUMMARY_PRINT_FONT_TITLE_LANDSCAPE}px;
             gap: 10mm;
           }
 
           .summary-print-sheet--landscape .summary-print-table {
-            font-size: ${SUMMARY_PRINT_FONT_TABLE_LANDSCAPE}px; /* Landscape: reduced table font */
+            font-size: ${SUMMARY_PRINT_FONT_TABLE_LANDSCAPE}px;
           }
 
           .summary-print-sheet--landscape .summary-print-header-right {
@@ -928,9 +970,6 @@ function SummaryContent({ username, isAdmin }) {
 
           .summary-print-sheet--landscape .summary-print-month-line {
             font-size: ${SUMMARY_PRINT_FONT_MONTH_LINE_LANDSCAPE}px;
-          }
-
-          .summary-print-sheet--landscape .summary-print-header--calculations {
           }
 
           .summary-print-sheet--landscape .summary-print-calculations {
