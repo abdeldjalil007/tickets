@@ -245,9 +245,8 @@ function SummaryContent({ username, isAdmin }) {
 
       <div className="flex min-h-screen overflow-x-hidden">
         <aside
-          className={`summary-app-sidebar summary-print-hide fixed inset-y-0 left-0 z-30 w-[245px] bg-slate-900 p-5 text-white transition-transform duration-300 ease-in-out ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+          className={`summary-app-sidebar summary-print-hide fixed inset-y-0 left-0 z-30 w-[245px] bg-slate-900 p-5 text-white transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
         >
           <div className="flex h-full flex-col">
             <nav className="mt-12 space-y-1">
@@ -257,6 +256,13 @@ function SummaryContent({ username, isAdmin }) {
                 className="flex w-full cursor-pointer items-center rounded-xl px-3 py-2 text-left text-sm font-semibold text-blue-100 transition hover:bg-white/10"
               >
                 Dashboard
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push("/search")}
+                className="flex w-full cursor-pointer items-center rounded-xl px-3 py-2 text-left text-sm font-semibold text-blue-100 transition hover:bg-white/10"
+              >
+                Search Tickets
               </button>
               <button
                 type="button"
@@ -525,10 +531,6 @@ function SummaryContent({ username, isAdmin }) {
                                 <p>
                                   <span>Téléphone :</span>
                                   <strong>0660 62 63 68/ 0781 28 11 29</strong>
-                                </p>
-                                <p>
-                                  <span>ANEP :</span>
-                                  <strong>TOUTES LES WILAYAS</strong>
                                 </p>
                                 <div className="summary-print-meta-break" />
                               </section>

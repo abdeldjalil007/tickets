@@ -274,6 +274,13 @@ function SurfacesContent({ username, isAdmin }) {
               </button>
               <button
                 type="button"
+                onClick={() => router.push("/search")}
+                className="flex w-full cursor-pointer items-center rounded-xl px-3 py-2 text-left text-sm font-semibold text-blue-100 transition hover:bg-white/10"
+              >
+                Search Tickets
+              </button>
+              <button
+                type="button"
                 className="flex w-full cursor-pointer items-center rounded-xl bg-white/95 px-3 py-2 text-left text-sm font-semibold text-slate-900"
               >
                 Surfaces

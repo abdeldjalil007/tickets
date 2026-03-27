@@ -119,6 +119,10 @@ function InvoiceContent({ username, isAdmin }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [monthOptions, setMonthOptions] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState("");
+  
+  const todayDateStr = new Date().toISOString().split("T")[0];
+  const [invoiceDate, setInvoiceDate] = useState(todayDateStr);
+
   const [summary, setSummary] = useState(null);
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -230,7 +234,10 @@ function InvoiceContent({ username, isAdmin }) {
     window.print();
   };
 
-  const issueDate = printableDateFormatter.format(new Date());
+  const issueDate = invoiceDate 
+    ? invoiceDate.split("-").reverse().join("/")
+    : printableDateFormatter.format(new Date());
+  
   const invoiceMonthCode = summary ? formatInvoiceMonthCode(summary.month) : "-";
   const invoiceMonthName = summary ? formatInvoiceMonthName(summary.month) : "-";
 
@@ -259,6 +266,13 @@ function InvoiceContent({ username, isAdmin }) {
                 className="flex w-full cursor-pointer items-center rounded-xl px-3 py-2 text-left text-sm font-semibold text-blue-100 transition hover:bg-white/10"
               >
                 Dashboard
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push("/search")}
+                className="flex w-full cursor-pointer items-center rounded-xl px-3 py-2 text-left text-sm font-semibold text-blue-100 transition hover:bg-white/10"
+              >
+                Search Tickets
               </button>
               <button
                 type="button"
@@ -356,8 +370,8 @@ function InvoiceContent({ username, isAdmin }) {
               <h1 className="title">Monthly Invoice</h1>
               <p className="muted mt-2">Select a month to generate the invoice preview and print it.</p>
 
-              <form onSubmit={handleSubmit} className="invoice-controls mt-6 grid grid-cols-1 gap-3 md:grid-cols-4">
-                <div className="md:col-span-2">
+              <form onSubmit={handleSubmit} className="invoice-controls mt-6 grid grid-cols-1 gap-3 lg:grid-cols-5 md:grid-cols-2">
+                <div className="lg:col-span-2">
                   <label htmlFor="invoice-month" className="label">
                     Month
                   </label>
@@ -370,11 +384,24 @@ function InvoiceContent({ username, isAdmin }) {
                   >
                     <option value="">Select a month</option>
                     {monthOptions.map((month) => (
-                      <option key={month.value} value={month.value}>
-                        {month.label}
-                      </option>
+                       <option key={month.value} value={month.value}>
+                         {month.label}
+                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div>
+                  <label htmlFor="invoice-date" className="label">
+                    Invoice Date
+                  </label>
+                  <input
+                    id="invoice-date"
+                    type="date"
+                    className="field"
+                    value={invoiceDate}
+                    onChange={(e) => setInvoiceDate(e.target.value)}
+                  />
                 </div>
 
                 <div className="flex items-end">

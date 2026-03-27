@@ -397,6 +397,13 @@ function ReportsContent({ username, isAdmin }) {
               </button>
               <button
                 type="button"
+                onClick={() => router.push("/search")}
+                className="flex w-full cursor-pointer items-center rounded-xl px-3 py-2 text-left text-sm font-semibold text-blue-100 transition hover:bg-white/10"
+              >
+                Search Tickets
+              </button>
+              <button
+                type="button"
                 onClick={() => router.push("/surfaces")}
                 className="flex w-full cursor-pointer items-center rounded-xl px-3 py-2 text-left text-sm font-semibold text-blue-100 transition hover:bg-white/10"
               >
@@ -746,7 +753,7 @@ function ReportsContent({ username, isAdmin }) {
                               </p>
                               <p>
                                 <span>ANEP :</span>
-                                <strong>{selectedWilayaLabel}</strong>
+                                <strong>{selectedWilaya ? selectedWilaya.name : "-"}</strong>
                               </p>
                               <div className="report-print-meta-break" />
                               <p className="report-print-month-line">
