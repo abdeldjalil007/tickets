@@ -346,7 +346,7 @@ function SearchContent({ username, isAdmin }) {
                 </div>
 
                 <div className="flex items-end">
-                  <button type="submit" className="btn btn-primary w-full" disabled={isSearching}>
+                  <button type="submit" className="btn btn-success w-full" disabled={isSearching}>
                     {isSearching ? "Searching..." : "Search"}
                   </button>
                 </div>
