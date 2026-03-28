@@ -4,18 +4,26 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 
-const amountFormatter = new Intl.NumberFormat("en-US", {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
 const printableMonthFormatter = new Intl.DateTimeFormat("fr-FR", {
   month: "long",
   year: "numeric",
   timeZone: "UTC",
 });
 
-const formatAmount = (value) => amountFormatter.format(Number(value || 0));
+const formatAmount = (value) => {
+  const numeric = Number(value || 0);
+
+  if (!Number.isFinite(numeric)) {
+    return "0,00";
+  }
+
+  const isNegative = numeric < 0;
+  const absolute = Math.abs(numeric);
+  const [integerPart, decimalPart] = absolute.toFixed(2).split(".");
+  const groupedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+
+  return `${isNegative ? "-" : ""}${groupedInteger},${decimalPart}`;
+};
 
 const formatPrintableMonthLabel = (monthData) => {
   const monthValue = String(monthData?.value || "").trim();
