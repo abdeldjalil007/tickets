@@ -725,7 +725,7 @@ function SummaryContent({ username, isAdmin }) {
 
           .summary-print-content {
             width: 100%;
-            padding-bottom: 18mm;
+            padding-bottom: 15mm;
           }
 
           .summary-print-page-break {
@@ -818,8 +818,8 @@ function SummaryContent({ username, isAdmin }) {
           .summary-print-table th,
           .summary-print-table td {
             border: 1px solid #000;
-            padding: 0.9mm 0.8mm;
-            line-height: 1.05;
+            padding: 1mm 0.85mm;
+            line-height: 1.08;
             text-align: center;
             vertical-align: middle;
           }
@@ -843,7 +843,7 @@ function SummaryContent({ username, isAdmin }) {
           }
 
           .summary-print-calculations-wrap {
-            margin-top: 2.2mm;
+            margin-top: 2.6mm;
             width: calc(100% - 1mm);
             margin-right: 1mm;
             box-sizing: border-box;
@@ -863,8 +863,8 @@ function SummaryContent({ username, isAdmin }) {
 
           .summary-print-calculations td {
             border: 1px solid #000;
-            padding: 0.9mm 0.8mm;
-            line-height: 1.05;
+            padding: 1mm 0.85mm;
+            line-height: 1.08;
             vertical-align: middle;
           }
 
