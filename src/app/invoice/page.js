@@ -670,7 +670,7 @@ function InvoiceContent({ username, isAdmin }) {
                             {invoiceMonthName}
                           </td>
                           <td className="invoice-print-cell-center">1</td>
-                          <td className="invoice-print-cell-value">{formatAmount(summary.totalGeneral)}</td>
+                          <td className="invoice-print-cell-value"></td>
                         </tr>
                         <tr>
                           <td>Total Brut</td>
