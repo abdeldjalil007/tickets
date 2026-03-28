@@ -52,29 +52,30 @@ const PRINT_FOOTER_LINES = [
 ];
 
 const SUMMARY_WILAYA_PORTRAIT_LIMIT = 6;
-const SUMMARY_LINES_LIMIT_PORTRAIT = 27;
-const SUMMARY_LINES_LIMIT_LANDSCAPE = 17;
 
-const SUMMARY_PRINT_FONT_HEADER_RIGHT_PORTRAIT = 15;
-const SUMMARY_PRINT_FONT_HEADER_RIGHT_LANDSCAPE = 15;
+const SUMMARY_LINES_LIMIT_PORTRAIT = 31;
+const SUMMARY_LINES_LIMIT_LANDSCAPE = 31;
 
-const SUMMARY_PRINT_FONT_TITLE_PORTRAIT = 18;
-const SUMMARY_PRINT_FONT_TITLE_LANDSCAPE = 18;
+const SUMMARY_PRINT_FONT_HEADER_RIGHT_PORTRAIT = 13;
+const SUMMARY_PRINT_FONT_HEADER_RIGHT_LANDSCAPE = 11;
 
-const SUMMARY_PRINT_FONT_META_PORTRAIT = 16;
-const SUMMARY_PRINT_FONT_META_LANDSCAPE = 14;
+const SUMMARY_PRINT_FONT_TITLE_PORTRAIT = 15;
+const SUMMARY_PRINT_FONT_TITLE_LANDSCAPE = 13;
 
-const SUMMARY_PRINT_FONT_MONTH_LINE_PORTRAIT = 12;
-const SUMMARY_PRINT_FONT_MONTH_LINE_LANDSCAPE = 12;
+const SUMMARY_PRINT_FONT_META_PORTRAIT = 12.5;
+const SUMMARY_PRINT_FONT_META_LANDSCAPE = 10;
 
-const SUMMARY_PRINT_FONT_TABLE_PORTRAIT = 13;
-const SUMMARY_PRINT_FONT_TABLE_LANDSCAPE = 13;
+const SUMMARY_PRINT_FONT_MONTH_LINE_PORTRAIT = 10;
+const SUMMARY_PRINT_FONT_MONTH_LINE_LANDSCAPE = 9;
 
-const SUMMARY_PRINT_FONT_CALCULATIONS_PORTRAIT = 13;
-const SUMMARY_PRINT_FONT_CALCULATIONS_LANDSCAPE = 13;
+const SUMMARY_PRINT_FONT_TABLE_PORTRAIT = 11;
+const SUMMARY_PRINT_FONT_TABLE_LANDSCAPE = 9;
 
-const SUMMARY_PRINT_FONT_FOOTER_PORTRAIT = 14;
-const SUMMARY_PRINT_FONT_FOOTER_LANDSCAPE = 12;
+const SUMMARY_PRINT_FONT_CALCULATIONS_PORTRAIT = 11;
+const SUMMARY_PRINT_FONT_CALCULATIONS_LANDSCAPE = 9;
+
+const SUMMARY_PRINT_FONT_FOOTER_PORTRAIT = 11.5;
+const SUMMARY_PRINT_FONT_FOOTER_LANDSCAPE = 10;
 
 const chunkSummaryRows = (rows = [], pageSize = SUMMARY_LINES_LIMIT_PORTRAIT) => {
   if (pageSize <= 0) {
@@ -238,7 +239,10 @@ function SummaryContent({ username, isAdmin }) {
   const printIsPortrait = (summary?.wilayas?.length || 0) <= SUMMARY_WILAYA_PORTRAIT_LIMIT;
   const printLinesLimit = printIsPortrait ? SUMMARY_LINES_LIMIT_PORTRAIT : SUMMARY_LINES_LIMIT_LANDSCAPE;
   const printPages = summary ? chunkSummaryRows(summary.rows, printLinesLimit) : [];
-  const shouldPrintCalculationsHeader = Boolean(summary && summary.rows.length > 0 && printPages.length === 1);
+  const dateColumnWidthPercent = 12;
+  const amountColumnWidthPercent = summary?.wilayas?.length
+    ? (100 - dateColumnWidthPercent) / summary.wilayas.length
+    : 0;
 
   return (
     <main className="summary-app-root min-h-screen w-full bg-transparent">
@@ -418,12 +422,18 @@ function SummaryContent({ username, isAdmin }) {
                   </div>
 
                   <div className="overflow-x-auto rounded-xl border border-slate-200">
-                    <table className="min-w-full bg-white text-sm text-slate-700">
+                    <table className="summary-screen-table min-w-full bg-white text-sm text-slate-700">
+                      <colgroup>
+                        <col style={{ width: `${dateColumnWidthPercent}%` }} />
+                        {summary.wilayas.map((wilaya) => (
+                          <col key={`screen-col-${wilaya.id}`} style={{ width: `${amountColumnWidthPercent}%` }} />
+                        ))}
+                      </colgroup>
                       <thead>
                         <tr className="bg-slate-50 text-center text-slate-700">
                           <th className="px-4 py-3 font-semibold">DATE</th>
                           {summary.wilayas.map((wilaya) => (
-                            <th key={wilaya.id} className="min-w-[150px] px-4 py-3 font-semibold">
+                            <th key={wilaya.id} className="px-4 py-3 font-semibold">
                               {`MONTANT ${String(wilaya.name || "").toUpperCase()}`}
                             </th>
                           ))}
@@ -525,8 +535,6 @@ function SummaryContent({ username, isAdmin }) {
 
                           {isFirstPage ? (
                             <>
-                              <br />
-                              <br />
                               <section className="summary-print-meta">
                                 <p>
                                   <span>Le nom du journal :</span>
@@ -567,6 +575,12 @@ function SummaryContent({ username, isAdmin }) {
                           ) : null}
 
                           <table className="summary-print-table">
+                            <colgroup>
+                              <col style={{ width: `${dateColumnWidthPercent}%` }} />
+                              {summary.wilayas.map((wilaya) => (
+                                <col key={`print-col-${wilaya.id}`} style={{ width: `${amountColumnWidthPercent}%` }} />
+                              ))}
+                            </colgroup>
                             <thead>
                               <tr>
                                 <th>DATE</th>
@@ -606,7 +620,7 @@ function SummaryContent({ username, isAdmin }) {
                             ) : null}
                           </table>
 
-                          {isLastPage && printPages.length >= 2 ? (
+                          {isLastPage ? (
                             <div className="summary-print-calculations-wrap">
                               <table className="summary-print-calculations">
                                 <tbody>
@@ -639,59 +653,6 @@ function SummaryContent({ username, isAdmin }) {
                     );
                   })}
 
-                  {/* ─── FIXED: wrapper with padding-bottom so the fixed footer never overlaps ─── */}
-                  {shouldPrintCalculationsHeader ? (
-                    <div className="summary-print-calculations-page">
-                      <header className="summary-print-header summary-print-header--calculations">
-                        <div className="summary-print-logo-wrap">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src="/assets/image1.png"
-                            alt="Sport News logo"
-                            className="summary-print-logo"
-                            loading="eager"
-                            decoding="sync"
-                          />
-                        </div>
-                        <div className="summary-print-header-right">
-                          {PRINT_HEADER_LINES.map((line) => (
-                            <p key={line}>{line}</p>
-                          ))}
-                        </div>
-                      </header>
-                      <br />
-                      <br />
-                      {summary && printPages.length === 1 ? (
-                        <div className="summary-print-calculations-wrap">
-                          <table className="summary-print-calculations">
-                            <tbody>
-                              <tr>
-                                <td>Montant général</td>
-                                <td>{formatAmount(summary.totalGeneral)}</td>
-                              </tr>
-                              <tr>
-                                <td>Commission anep 30 %</td>
-                                <td>{formatAmount(summary.commissionAnep)}</td>
-                              </tr>
-                              <tr>
-                                <td>Montant HT</td>
-                                <td>{formatAmount(summary.montantHt)}</td>
-                              </tr>
-                              <tr>
-                                <td>MONTANT TVA 19 %</td>
-                                <td>{formatAmount(summary.montantTva)}</td>
-                              </tr>
-                              <tr>
-                                <td>TTC</td>
-                                <td>{formatAmount(summary.ttc)}</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      ) : null}
-                    </div>
-                  ) : null}
-
                   <footer className="summary-print-footer">
                     {PRINT_FOOTER_LINES.map((line) => (
                       <p key={line}>{line}</p>
@@ -713,10 +674,15 @@ function SummaryContent({ username, isAdmin }) {
           display: none;
         }
 
+        .summary-screen-table {
+          width: 100%;
+          table-layout: fixed;
+        }
+
         @media print {
           @page {
             size: A4 ${printIsPortrait ? "portrait" : "landscape"};
-            margin: 8mm;
+            margin: 5mm;
           }
 
           .summary-app-sidebar,
@@ -759,12 +725,7 @@ function SummaryContent({ username, isAdmin }) {
 
           .summary-print-content {
             width: 100%;
-            padding-bottom: 34mm;
-          }
-
-          /* ─── FIXED: calculations page wrapper also gets the same padding-bottom ─── */
-          .summary-print-calculations-page {
-            padding-bottom: 34mm;
+            padding-bottom: 18mm;
           }
 
           .summary-print-page-break {
@@ -776,7 +737,7 @@ function SummaryContent({ username, isAdmin }) {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 5mm;
+            margin-bottom: 2.5mm;
           }
 
           .summary-print-logo-wrap {
@@ -792,7 +753,7 @@ function SummaryContent({ username, isAdmin }) {
           .summary-print-header-right {
             direction: rtl;
             text-align: right;
-            line-height: 1.35;
+            line-height: 1.15;
             font-size: ${SUMMARY_PRINT_FONT_HEADER_RIGHT_PORTRAIT}px;
             max-width: 135mm;
             font-family: Calibri, "Segoe UI", Arial, sans-serif;
@@ -801,29 +762,30 @@ function SummaryContent({ username, isAdmin }) {
           .summary-print-title {
             display: flex;
             justify-content: center;
-            gap: 14mm;
-            margin: 0 0 6mm;
+            gap: 8mm;
+            margin: 0 0 4.5mm;
             font-size: ${SUMMARY_PRINT_FONT_TITLE_PORTRAIT}px;
             font-weight: 700;
           }
 
           .summary-print-meta {
-            margin-bottom: 4mm;
-            line-height: 1.4;
+            margin-bottom: 2.5mm;
+            line-height: 1.15;
             font-size: ${SUMMARY_PRINT_FONT_META_PORTRAIT}px;
           }
 
           .summary-print-meta p {
             display: flex;
-            gap: 6px;
+            gap: 4px;
+            margin: 0;
           }
 
           .summary-print-meta span {
-            min-width: 145px;
+            min-width: 108px;
           }
 
           .summary-print-meta-break {
-            height: 3mm;
+            height: 1mm;
           }
 
           .summary-print-month-line {
@@ -846,6 +808,7 @@ function SummaryContent({ username, isAdmin }) {
             border-collapse: collapse;
             border: 1px solid #000;
             color: #000;
+            table-layout: fixed;
           }
 
           .summary-print-table {
@@ -855,8 +818,8 @@ function SummaryContent({ username, isAdmin }) {
           .summary-print-table th,
           .summary-print-table td {
             border: 1px solid #000;
-            padding: 1.2mm 1mm;
-            line-height: 1;
+            padding: 0.9mm 0.8mm;
+            line-height: 1.05;
             text-align: center;
             vertical-align: middle;
           }
@@ -880,7 +843,7 @@ function SummaryContent({ username, isAdmin }) {
           }
 
           .summary-print-calculations-wrap {
-            margin-top: 4mm;
+            margin-top: 2.2mm;
             width: calc(100% - 1mm);
             margin-right: 1mm;
             box-sizing: border-box;
@@ -900,8 +863,8 @@ function SummaryContent({ username, isAdmin }) {
 
           .summary-print-calculations td {
             border: 1px solid #000;
-            padding: 1.2mm 1mm;
-            line-height: 1;
+            padding: 0.9mm 0.8mm;
+            line-height: 1.05;
             vertical-align: middle;
           }
 
@@ -924,12 +887,12 @@ function SummaryContent({ username, isAdmin }) {
             right: 0;
             bottom: 0;
             border-top: 1px solid #000;
-            padding: 2mm 4mm 0;
+            padding: 1mm 3mm 0;
             background: #fff;
             text-align: center;
             direction: rtl;
             font-size: ${SUMMARY_PRINT_FONT_FOOTER_PORTRAIT}px;
-            line-height: 1.2;
+            line-height: 1.1;
             z-index: 2;
             font-family: Calibri, "Segoe UI", Arial, sans-serif;
           }
@@ -940,12 +903,7 @@ function SummaryContent({ username, isAdmin }) {
 
           /* Landscape overrides */
           .summary-print-sheet--landscape .summary-print-content {
-            padding-bottom: 30mm;
-          }
-
-          /* ─── FIXED: landscape also needs the reduced padding on the calculations page ─── */
-          .summary-print-sheet--landscape .summary-print-calculations-page {
-            padding-bottom: 30mm;
+            padding-bottom: 22mm;
           }
 
           .summary-print-sheet--landscape .summary-print-header {
