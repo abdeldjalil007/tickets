@@ -44,12 +44,12 @@ export async function POST(req) {
       );
     }
 
-    // Check if ticket with same number for the same date already exists
+    // Enforce global uniqueness: a ticket number can only exist once.
     const { data: exists, error: checkError } = await supabase
       .from("tickets")
       .select("number")
       .eq("number", normalizedNumber)
-      .eq("date", normalizedDate);
+      .limit(1);
 
     if (checkError) throw checkError;
 

@@ -77,6 +77,22 @@ export async function PATCH(req) {
       return Response.json({ error: "Selected surface does not exist." }, { status: 400 });
     }
 
+    // Enforce global uniqueness for ticket numbers, excluding the ticket being edited.
+    const { data: conflictingTickets, error: conflictLookupError } = await supabase
+      .from("tickets")
+      .select("date, number")
+      .eq("number", newNumber);
+
+    if (conflictLookupError) throw conflictLookupError;
+
+    const hasConflict = (conflictingTickets || []).some(
+      (ticket) => String(ticket.date) !== oldDate || String(ticket.number) !== oldNumber
+    );
+
+    if (hasConflict) {
+      return Response.json({ error: "Ticket number already exists." }, { status: 400 });
+    }
+
     const { data, error } = await supabase
       .from("tickets")
       .update({ date: newDate, number: newNumber, surface: parsedSurfaceId })
@@ -87,7 +103,7 @@ export async function PATCH(req) {
 
     if (error) {
       if (String(error.message || "").toLowerCase().includes("duplicate key")) {
-        return Response.json({ error: "Ticket number already exists for this date." }, { status: 400 });
+        return Response.json({ error: "Ticket number already exists." }, { status: 400 });
       }
       throw error;
     }
@@ -97,6 +113,59 @@ export async function PATCH(req) {
     }
 
     return Response.json({ data, message: "Ticket updated successfully!" });
+  } catch (err) {
+    if (
+      typeof err?.message === "string" &&
+      (err.message.includes("out of range for type integer") || err.message.includes("out of range for type bigint"))
+    ) {
+      return Response.json(
+        { error: "Ticket number is out of bigint range." },
+        { status: 400 }
+      );
+    }
+
+    return Response.json({ error: err.message || "Something went wrong" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req) {
+  try {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    if (!token) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const date = String(body?.date || "").trim();
+    const number = String(body?.number || "").trim();
+
+    if (!isValidDate(date) || !/^\d+$/.test(number)) {
+      return Response.json(
+        { error: "Valid ticket date and ticket number are required." },
+        { status: 400 }
+      );
+    }
+
+    const parsedBigInt = BigInt(number);
+    if (parsedBigInt <= 0n || parsedBigInt > MAX_BIGINT) {
+      return Response.json({ error: "Ticket number is out of bigint range." }, { status: 400 });
+    }
+
+    const { data, error } = await supabase
+      .from("tickets")
+      .delete()
+      .eq("date", date)
+      .eq("number", number)
+      .select("number, date")
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (!data) {
+      return Response.json({ error: "Ticket not found." }, { status: 404 });
+    }
+
+    return Response.json({ data, message: "Ticket deleted successfully!" });
   } catch (err) {
     if (
       typeof err?.message === "string" &&

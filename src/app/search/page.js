@@ -52,6 +52,7 @@ function SearchContent({ username, isAdmin }) {
   const [editingNumber, setEditingNumber] = useState("");
   const [editingSurfaceId, setEditingSurfaceId] = useState("");
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [deletingKey, setDeletingKey] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -197,6 +198,39 @@ function SearchContent({ username, isAdmin }) {
       setError(saveError.message || "Failed to update ticket.");
     } finally {
       setIsSavingEdit(false);
+    }
+  };
+
+  const deleteTicket = async (ticket) => {
+    const confirmed = window.confirm(
+      `Delete ticket N°BC ${ticket.number} from ${ticket.date}? This action cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setError("");
+    setStatusMessage("");
+    cancelEdit();
+    const rowKey = getRowKey(ticket);
+    setDeletingKey(rowKey);
+
+    try {
+      const response = await fetch("/api/tickets/search", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date: ticket.date, number: String(ticket.number) }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to delete ticket.");
+      }
+
+      setTickets((prev) => prev.filter((item) => getRowKey(item) !== rowKey));
+      setStatusMessage("Ticket deleted successfully.");
+    } catch (deleteError) {
+      setError(deleteError.message || "Failed to delete ticket.");
+    } finally {
+      setDeletingKey("");
     }
   };
 
@@ -374,6 +408,7 @@ function SearchContent({ username, isAdmin }) {
                       {tickets.map((ticket) => {
                         const rowKey = getRowKey(ticket);
                         const isEditing = editingKey === rowKey;
+                        const isDeleting = deletingKey === rowKey;
 
                         return (
                           <tr key={rowKey} className="border-t border-slate-100 text-sm text-slate-700">
@@ -441,14 +476,24 @@ function SearchContent({ username, isAdmin }) {
                                   </button>
                                 </div>
                               ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => startEdit(ticket)}
-                                  disabled={Boolean(editingKey)}
-                                  className="btn btn-ghost px-3 py-1 text-xs"
-                                >
-                                  Edit
-                                </button>
+                                <div className="flex flex-wrap gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => startEdit(ticket)}
+                                    disabled={Boolean(editingKey) || Boolean(deletingKey)}
+                                    className="btn btn-ghost px-3 py-1 text-xs"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => deleteTicket(ticket)}
+                                    disabled={Boolean(editingKey) || Boolean(deletingKey)}
+                                    className="cursor-pointer rounded-lg border border-red-300 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                  >
+                                    {isDeleting ? "Deleting..." : "Delete"}
+                                  </button>
+                                </div>
                               )}
                             </td>
                           </tr>
