@@ -95,12 +95,14 @@ function DashboardContent({ username, isAdmin }) {
           const hasExistingSurface = loadedSurfaces.some(
             (surfaceOption) => String(surfaceOption.id) === normalizedPrevious
           );
-          if (hasExistingSurface) {
+          // If user has already selected a surface, keep it
+          if (hasExistingSurface && normalizedPrevious) {
             return normalizedPrevious;
           }
 
+          // Only use 1/4 as default if no previous selection exists
           const preferredSurface = loadedSurfaces.find(
-            (surfaceOption) => String(surfaceOption.name || "").trim() === "1/2"
+            (surfaceOption) => String(surfaceOption.name || "").trim() === "1/4"
           );
 
           if (preferredSurface) {
