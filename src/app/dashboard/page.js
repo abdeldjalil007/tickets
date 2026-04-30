@@ -37,7 +37,12 @@ export default function Dashboard() {
 
 function DashboardContent({ username, isAdmin }) {
   const router = useRouter();
-  const today = new Date().toISOString().split("T")[0];
+
+  const today = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split("T")[0];
+  })();
   const storageKey = getTicketDraftKey(username);
 
   const [draft] = useState(() => {
