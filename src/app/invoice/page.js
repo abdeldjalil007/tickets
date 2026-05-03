@@ -724,7 +724,7 @@ function InvoiceContent({ username, isAdmin }) {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 10mm;
+            margin: 0mm;
           }
 
           .invoice-app-sidebar,
@@ -767,7 +767,7 @@ function InvoiceContent({ username, isAdmin }) {
             color: #000;
             font-family: "Times New Roman", serif;
             font-size: ${INVOICE_PRINT_FONT_BASE_PORTRAIT}px;
-            padding-bottom: 34mm;
+            padding: 10mm 10mm 44mm 10mm;
           }
 
           .invoice-print-header {
@@ -877,7 +877,7 @@ function InvoiceContent({ username, isAdmin }) {
             right: 0;
             bottom: 0;
             border-top: 1px solid #000;
-            padding: 2mm 4mm 0;
+            padding: 2mm 4mm 10mm;
             background: #fff;
             text-align: center;
             direction: rtl;

@@ -838,7 +838,7 @@ function ReportsContent({ username, isAdmin }) {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 10mm;
+            margin: 0mm;
           }
 
           .report-app-sidebar,
@@ -881,7 +881,7 @@ function ReportsContent({ username, isAdmin }) {
           }
 
           .report-print-content {
-            padding-bottom: 40mm;
+            padding: 10mm 10mm 50mm 10mm;
           }
 
           .report-print-page-break {
@@ -1012,7 +1012,7 @@ function ReportsContent({ username, isAdmin }) {
             right: 0;
             bottom: 0;
             border-top: 1px solid #000;
-            padding: 2mm 4mm 0;
+            padding: 2mm 4mm 10mm;
             background: #fff;
             text-align: center;
             direction: rtl;
